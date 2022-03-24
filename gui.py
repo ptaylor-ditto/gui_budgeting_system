@@ -1,8 +1,6 @@
-from pydoc import visiblename
+import random, os, time
 import PySimpleGUI as sg
-import random
-
-from pygame import HIDDEN
+os.system('cls')
 sg.LOOK_AND_FEEL_TABLE['Theming'] = {
     'BACKGROUND': '#f4ffbd',
     'TEXT': '#000000',
