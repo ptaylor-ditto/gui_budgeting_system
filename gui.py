@@ -1,3 +1,4 @@
+from csv import reader
 import PySimpleGUI as sg
 import random, os
 
@@ -33,7 +34,7 @@ login_layout = [
 signed_in_layout = [
     [sg.Text('Welcome to the budgeting system.')],
     [sg.Text('What would you like to do?')],
-    [sg.Button('Search'), sg.Button('Create'), sg.Button('Delete'), sg.Button('Edit'), sg.Button('Leave')]
+    [sg.Button('View'), sg.Button('Create'), sg.Button('Delete'), sg.Button('Edit'), sg.Button('Leave')]
 ]
 create_account_layout = [
     [sg.Text('Create account here:')],
@@ -47,6 +48,33 @@ delete_account_layout = [
     [sg.Text('What is the password?'), sg.InputText(key='password')],
     [sg.Button('Delete Account.'), sg.Button('Leave')]
 ]
+view_layout = [
+    [sg.Text('Which budget would you like to view?')],
+    [sg.Text(), sg.InputText(key='viewing_budget')],
+    [sg.Button('View.'), sg.Button('Leave'), sg.Button('Go Back')]
+]
+create_layout = [
+    [sg.Text('Create budget here:')],
+    [sg.Text('What is the name of the budget?'), sg.InputText(key='name')],
+    [sg.Text('What is the budget amount?'), sg.InputText(key='amount')],
+    [sg.Text('How much have you spent so far?'), sg.InputText(key='spent')],
+    [sg.Button('Delete Account.'), sg.Button('Leave'), sg.Button('Go Back')]
+]
+delete_layout = [
+    [sg.Text('Delete budget here:')],
+    [sg.Text('What is the username?'), sg.InputText(key='username')],
+    [sg.Text('What is the password?'), sg.InputText(key='password')],
+    [sg.Button('Delete Account.'), sg.Button('Leave')]
+]
+edit_layout = [
+    [sg.Text('Delete account here:')],
+    [sg.Text('What is the username?'), sg.InputText(key='username')],
+    [sg.Text('What is the password?'), sg.InputText(key='password')],
+    [sg.Button('Delete Account.'), sg.Button('Leave')]
+]
+viewing_layout = [
+    [sg.Text()]
+]
 
 window = sg.Window("Home Page", homepage_layout)
 while True:
@@ -57,13 +85,27 @@ while True:
         window.close()
         window = sg.Window("Login Screen", login_layout)
         current = "Login"
-    elif event == "Sign in":
+    elif event == "Sign in" or event == "Create Account." or event == "Go Back":
         window.close()
-        if os.path.exists(f"{username}_____.csv"):
-            window = sg.Window("Budgeting Program", signed_in_layout)
-            current = "Sign In"
-        else:
-            print(username)
+        window = sg.Window("Budgeting Program", signed_in_layout)
+        if event == "Sign In":
+            username = values['username']
+            if os.path.exists(f"{username}_____.csv"):
+                window.close()
+                window = sg.Window("Budgeting Program", signed_in_layout)
+                current = "Sign In"
+            else:
+                print(username)
+        elif event == "Create Account":
+            username = values['username']
+            password = values['password']
+            if os.path.exists(f"{username}_____.csv"):
+                continue
+            else:
+                file = open("accounts.csv", 'a', newline='')
+                information = f"{username},{password}"
+                file.writelines(information)
+                file = open(f"{username}_____.csv", 'x')
     elif event == "Delete Account":
         window.close()
         window = sg.Window("Budgeting Program", delete_account_layout)
@@ -72,19 +114,24 @@ while True:
         window.close()
         window = sg.Window("Budgeting Program", create_account_layout)
         current = "Create Account"
-    elif event == "Create Account.":
+    elif event == "View":
         window.close()
-        window = sg.Window("Budgeting Program", signed_in_layout)
-        username = values['username']
-        password = values['password']
-        if os.path.exists(f"{username}_____.csv"):
-            continue
-        else:
-            file = open("accounts.csv", 'a', newline='')
-            information = f"{username},{password}"
-            file.writelines(information)
-            file = open(f"{username}_____.csv", 'x')
-    elif event == "Delete Account":
+        window = sg.Window("View Budget", view_layout)
+    elif event == "Create":
         window.close()
-        window = sg.Window("Delete Account Screen", delete_account_layout)
+        window = sg.Window("Create Budget", create_layout)
+    elif event == "Delete":
+        window.close()
+        window = sg.Window("Delete Budget", delete_layout)
+    elif event == "Edit":
+        window.close()
+        window = sg.Window("Edit Budget", edit_layout)
+    elif event == "View.":
+        with open(f'{username}_____.csv', 'r') as file:
+            file = reader(file)
+            for row in file:
+                if row[0] == values['viewing_budget']:
+                    viewing_layout[0] == row
+        window.close()
+        window = sg.Window("Viewing Budget", viewing_layout)
 window.close()
