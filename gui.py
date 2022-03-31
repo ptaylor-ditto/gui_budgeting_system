@@ -25,6 +25,10 @@ homepage_layout = [
     [sg.Text('Welcome to the Budgeting Program. What would you like to do?')],
     [sg.Button('Login'), sg.Button('Create Account'), sg.Button('Delete Account'), sg.Button('Leave')]
 ]
+home_layout = [
+    [sg.Text('Welcome to the Budgeting Program. What would you like to do?')],
+    [sg.Button('Login'), sg.Button('Create Account'), sg.Button('Delete Account'), sg.Button('Leave')]
+]
 login_layout = [
     [sg.Text('Welcome to the Login Screen')],
     [sg.Text('What is the username?'), sg.InputText(key='username')],
@@ -58,24 +62,23 @@ create_layout = [
     [sg.Text('What is the name of the budget?'), sg.InputText(key='name')],
     [sg.Text('What is the budget amount?'), sg.InputText(key='amount')],
     [sg.Text('How much have you spent so far?'), sg.InputText(key='spent')],
-    [sg.Button('Delete Account.'), sg.Button('Go Back'), sg.Button('Leave')]
+    [sg.Button('Create Budget.'), sg.Button('Go Back'), sg.Button('Leave')]
 ]
 delete_layout = [
     [sg.Text('Delete budget here:')],
-    [sg.Text('What is the username?'), sg.InputText(key='username')],
-    [sg.Text('What is the password?'), sg.InputText(key='password')],
-    [sg.Button('Delete Account.'), sg.Button('Go Back'), sg.Button('Leave')]
+    [sg.Text('What is the budget name?'), sg.InputText(key='budget')],
+    [sg.Text('What is your password?'), sg.InputText(key='password')],
+    [sg.Button('Delete Budget.'), sg.Button('Go Back'), sg.Button('Leave')]
 ]
 edit_layout = [
-    [sg.Text('Delete account here:')],
+    [sg.Text('Edit layout here:')],
     [sg.Text('What is the username?'), sg.InputText(key='username')],
     [sg.Text('What is the password?'), sg.InputText(key='password')],
-    [sg.Button('Delete Account.'), sg.Button('Go Back'), sg.Button('Leave')]
+    [sg.Button('Edit Budget.'), sg.Button('Go Back'), sg.Button('Leave')]
 ]
 viewing_layout = [
     [sg.Text()]
 ]
-
 window = sg.Window("Home Page", homepage_layout)
 while True:
     event, values = window.read()
@@ -94,15 +97,15 @@ while True:
                 with open('accounts.csv', 'r') as file:
                     read = csv.reader(file, delimiter=',')
                     for row in read:
-                        if row == f"{username},{password}":
+                        if row[0] == username and row[1] == password:
                             cont = 'true'
-                            print("Yes")
+                            input("Yes")
+                            break
                         else:
-                            cont = 'false'
                             print("sorry")
                 if cont == 'true':
                     window.close()
-                    window = sg.Window("Budgeting Program", signed_in_layout)
+                    window = sg.Window(f"{username}'s Budgeting Program", signed_in_layout)
                     current = "Sign In"
             else:
                 print(username)
@@ -125,6 +128,24 @@ while True:
         window.close()
         window = sg.Window("Budgeting Program", delete_account_layout)
         current = "Delete Account"
+    elif event == "Delete Account.":
+        username = values['username']
+        contactinfo = []
+        file = f"{username}_____.csv"
+        if(os.path.exists(file) and os.path.isfile(file)):
+            os.remove(file)
+            os.system('cls')
+            with open('accounts.csv', 'r') as file:
+                file = reader(file)
+                for row in file:
+                    if row[0] == username:
+                        continue
+                    else:
+                        contactinfo.append(row)
+            with open('accounts.csv', 'w') as file:
+                file.writelines(contactinfo)
+        window.close()
+        window = sg.Window("Home Page", home_layout)
     elif event == "Create Account":
         window.close()
         window = sg.Window("Budgeting Program", create_account_layout)
